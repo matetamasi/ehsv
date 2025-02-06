@@ -1,9 +1,9 @@
 legio_szorzo = 3
 import pandas as pd
 import math
-térképadat = r"C:\medve\2025\egész hetes\térkép adatok.xlsx"
-játékállás = r"C:\medve\2025\egész hetes\térkép állás.xlsx" #játékállást tartalmazó excel
-lépés = r"C:\medve\2025\egész hetes\lépés.xlsx" #kör lépéseinek az excele
+térképadat = r"../src/terkep_adatok.xlsx"
+játékállás = r"../src/terkep allas.xlsx" #játékállást tartalmazó excel
+lépés = r"../src/lepes.xlsx" #kör lépéseinek az excele
 
 def szomszedos(A,B):
     #A mező szomszédja-e B-nek
