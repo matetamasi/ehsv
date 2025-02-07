@@ -1,9 +1,19 @@
-legio_szorzo = 3
 import pandas as pd
 import math
-térképadat = r"../resources/terkep_adatok.xlsx"
-játékállás = r"../resources/terkep allas.xlsx" #játékállást tartalmazó excel
-lépés = r"../resources/lepes.xlsx" #kör lépéseinek az excele
+from pathlib import Path
+
+# magyarazat a ./terkep_generator.py 7. soratol
+
+# a repo gyokerenek az eleresi utvonala:
+root = Path(__file__).parent.parent
+# a 'resources' mappa eleresi utvonala:
+resources = root / 'resources'
+
+térképadat = resources / "terkep_adatok.xlsx"
+játékállás = resources / "terkep_allas.xlsx" #játékállást tartalmazó excel
+lépés = resources / "lepes.xlsx" #kör lépéseinek az excele
+
+legio_szorzo = 3
 
 def szomszedos(A,B):
     #A mező szomszédja-e B-nek
