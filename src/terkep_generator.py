@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import pandas as pd
 import math as math
-térkép = pd.read_excel(r"../src/terkep_allas.xlsx", sheet_name="térkép") #r után a térképes excel elérése
-színek = pd.read_excel(r"../src/terkep_allas.xlsx", sheet_name="játékos színek") #r után a térképes excel elérése
+térkép = pd.read_excel(r"../resources/terkep_allas.xlsx", sheet_name="térkép") #r után a térképes excel elérése
+színek = pd.read_excel(r"../resources/terkep_allas.xlsx", sheet_name="játékos színek") #r után a térképes excel elérése
 
 fig, ax = plt.subplots()
 sor = térkép.shape[0]
