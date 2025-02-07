@@ -9,9 +9,9 @@ root = Path(__file__).parent.parent
 # a 'resources' mappa eleresi utvonala:
 resources = root / 'resources'
 
-térképadat = resources / "terkep_adatok.xlsx"
-játékállás = resources / "terkep_allas.xlsx" #játékállást tartalmazó excel
-lépés = resources / "lepes.xlsx" #kör lépéseinek az excele
+terkepadat = resources / "terkep_adatok.xlsx"
+jatekallas = resources / "terkep_allas.xlsx" #játékállást tartalmazó excel
+lepes = resources / "lepes.xlsx" #kör lépéseinek az excele
 
 legio_szorzo = 3
 
@@ -156,25 +156,25 @@ mezok[nevek[2]].lepesek_szetvalasztas()
 
 ### Szabi kódja ###
 
-térkép = pd.read_excel(térképadat, sheet_name="adatok").fillna(0)
+terkep = pd.read_excel(terkepadat, sheet_name="adatok").fillna(0)
 mezo_nevek=[]
-for a in range(len(térkép)):
-    mezo_nevek.append(térkép.loc[a, "Koordináta"])
+for a in range(len(terkep)):
+    mezo_nevek.append(terkep.loc[a, "Koordináta"])
 mezok = {}
 i=0
-#térkép adatainak a beolvasása mezo classba
+#terkep adatainak a beolvasása mezo classba
 for mezo_nev in mezo_nevek:
-    mezok[mezo_nev]=Mezo(str(mezo_nev), int(térkép.loc[i, "X"]), int(térkép.loc[i, "Y"]), int(térkép.loc[i, "víz szorzó"]), int(térkép.loc[i, "spice szorzó"]), str(térkép.loc[i, "pisztoly"]), str(térkép.loc[i, "lasgun"]), str(térkép.loc[i, "crysknife"]))
+    mezok[mezo_nev]=Mezo(str(mezo_nev), int(terkep.loc[i, "X"]), int(terkep.loc[i, "Y"]), int(terkep.loc[i, "víz szorzó"]), int(terkep.loc[i, "spice szorzó"]), str(terkep.loc[i, "pisztoly"]), str(terkep.loc[i, "lasgun"]), str(terkep.loc[i, "crysknife"]))
     i = i+1
 #jatékosokat csinál
 jatekosok = {}
-kezdőmezők = ["C1","G1","K1","O1","Q3","Q7","O11","K15","G15","C11","A7","A3"]
+kezdomezok = ["C1","G1","K1","O1","Q3","Q7","O11","K15","G15","C11","A7","A3"]
 for l in range(12):
-    jatekosok[str(l+1)]=Jatekos(str(l), str(kezdőmezők[l]))
+    jatekosok[str(l+1)]=Jatekos(str(l), str(kezdomezok[l]))
 #mezo.ralepne dolgot tölti fel
 j = 1
 while j < 13:
-    jatekos_lepes = pd.read_excel(lépés, sheet_name=str(j))
+    jatekos_lepes = pd.read_excel(lepes, sheet_name=str(j))
     lepesek = jatekos_lepes["rálép"]
     lepesek = lepesek.tolist()
     for lepes in lepesek:
@@ -194,14 +194,14 @@ while j < 13:
     crysknife = jatekos_lepes["crysknife"][0]
     pistol = jatekos_lepes["pisztoly"][0]
     legio = jatekos_lepes["légiók"][0]
-    harvester_ár = 0
+    harvester_ar = 0
     if jatekos_lepes["harvester"][0]:
-        harvester_ár = 5*pow(2, jatekosok[str(j)].telepitett_harvesterek + 1)
-    ár = legio*3+crysknife+pistol+lasgun+harvester_ár
-    if ár > jatekosok[str(j)].spice:
+        harvester_ar = 5*pow(2, jatekosok[str(j)].telepitett_harvesterek + 1)
+    ar = legio*3+crysknife+pistol+lasgun+harvester_ar
+    if ar > jatekosok[str(j)].spice:
         print(str(j)+"elbaszta a költségvetést")
     else:
-        jatekosok[str(j)].spice = jatekosok[str(j)].spice-ár
+        jatekosok[str(j)].spice = jatekosok[str(j)].spice-ar
         jatekosok[str(j)].lasgun = jatekosok[str(j)].lasgun+lasgun
         jatekosok[str(j)].pistol = jatekosok[str(j)].pistol+pistol
         jatekosok[str(j)].crysknife = jatekosok[str(j)].crysknife+crysknife

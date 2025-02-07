@@ -35,7 +35,7 @@ root = Path(__file__).parent.parent
 resources = root / 'resources'
 
 térkép = pd.read_excel(resources / "terkep_allas.xlsx", sheet_name="térkép")
-színek = pd.read_excel(resources / "terkep_allas.xlsx", sheet_name="játékos színek")
+szinek = pd.read_excel(resources / "terkep_allas.xlsx", sheet_name="játékos színek")
 
 fig, ax = plt.subplots()
 sor = térkép.shape[0]
@@ -45,9 +45,9 @@ for i in range(sor):
     koordináta = térkép.loc[i, "Koordináta"]
     felirat = térkép.loc[i, "Kié?"]
     harvester = térkép.loc[i, "Harvester?"]
-    szín = színek.loc[színek["Játékos"] == felirat, "Szín"]
-    if not szín.empty:
-        color = szín.values[0] 
+    szin = szinek.loc[szinek["Játékos"] == felirat, "Szín"]
+    if not szin.empty:
+        color = szin.values[0] 
     else:
         color = 'gray'
     hexagon = patches.RegularPolygon((1.5*X, math.sqrt(3)*Y), numVertices=6, radius=1, orientation=math.pi/6, edgecolor='black', facecolor=color)
