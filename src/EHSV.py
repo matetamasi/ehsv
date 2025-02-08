@@ -1,8 +1,7 @@
 ###############################################################################
 """                                                                           #
 Ez a fajl a tavalyi implementaciomat tartalmazza. Minden magyar nyelvu        #
-komment azota kerult bele. Hasznos lehet a ./classes.py kialakitasahoz, ha    # 
-nem abszolut nullarol akarunk indulni.                                        #
+komment azota kerult bele.                                                    #
 """                                                                           #
 ###############################################################################
 import pickle
