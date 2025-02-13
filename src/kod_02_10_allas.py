@@ -12,7 +12,7 @@ root = Path(__file__).parent.parent
 resources = root / 'resources'
 terkepadat = resources / "terkep_adatok.xlsx"
 jatekallas = resources / "terkep_allas.xlsx" #játékállást tartalmazó excel
-lepes = resources / "lepes.xlsx" #kör lépéseinek az excele
+lepes_fajl = resources / "lepes.xlsx" #kör lépéseinek az excele
 
 terkep_allas = pd.read_excel(jatekallas, sheet_name="térkép").fillna(0) #r után a térképes excel elérése
 szinek = pd.read_excel(jatekallas, sheet_name="játékos színek") #r után a térképes excel elérése
@@ -20,6 +20,9 @@ szinek = pd.read_excel(jatekallas, sheet_name="játékos színek") #r után a t�
 
 def szomszedos(A,B):
     #A mező szomszédja-e B-nek
+    if A.nev == "Z0" or B.nev == "Z0":
+        print(str(A.nev)+" vagy " + str(B.nev) + " nullmező")
+        return True
     if abs(A.X-B.X)<=1 and abs(A.Y-B.Y)<=1:
         if A.X-B.X == -1 and A.Y-B.Y == 1:
             return False
@@ -28,9 +31,6 @@ def szomszedos(A,B):
         else:
             #print(str(A)+" szomszédja"+str(B))
             return True
-    #if A == "Z0" or B == "Z0":
-    #    print(str(A)+" vagy" + str(B) + " nullmező")
-    #    return True
     else: 
         return False
 
@@ -130,7 +130,11 @@ class Mezo:
             haderok[jatekosok[jatekos].nev] = hadero
         
         #Dontetlent lekezelni!!!
-        gyoztes = max(haderok, key=haderok.get)
+        max_hadero = max(haderok.values())
+        max_jatekosok = [key for key, value in haderok.items() if  value == max_hadero]
+        gyoztes = 0
+        if len(max_jatekosok) == 1:
+            gyoztes = max_jatekosok[0]
         for jatekos in self.ralepne:
             if jatekos == gyoztes:
                 jatekosok[jatekos].mezore_lepes([self.nev])
@@ -172,19 +176,25 @@ for turn in range(1,11):
     #mezo.ralepne dolgot tölti fel
     j = 1
     while j < 13:
-        jatekos_lepes = pd.read_excel(lepes, sheet_name=str(j)).fillna(0)
+        jatekos_lepes = pd.read_excel(lepes_fajl, sheet_name=str(j)).fillna(0)
         lepesek = jatekos_lepes["rálép"]
         lepesek = lepesek.tolist()
         if all(item == 0 for item in lepesek): #hogy lépés ne lehessen üres, mert akkor nem működik kulcsnak
             lepesek = ["Z0"]
+        
+        ervenytelen_lepesek = []
         for lepes in lepesek: #ha van egy rossz lépés utána enged rossz lépést csinálni TODO
             valid_lepes = False
             for mezo in jatekosok[str(j)].mezok:
                 if szomszedos(mezok[mezo], mezok[lepes]): 
                     valid_lepes = True
             if not valid_lepes:
-                lepesek.remove(lepes)
+                ervenytelen_lepesek.append(lepes)
                 print(str(j) + ". jatekos probalt lepni a " + lepes + " mezore, ami nem szomszedos egyik sajatjaval")
+        for lepes in ervenytelen_lepesek:
+            lepesek.remove(lepes)
+        
+
         lelepesek = jatekos_lepes["lelép"]
         for mezo in mezo_nevek:
             for k in range(len(lepesek)):
@@ -210,8 +220,10 @@ for turn in range(1,11):
         if not jatekos_lepes["légiók"].empty:
             legio = jatekos_lepes["légiók"][0]
         harvester_ár = 0
+
         if not jatekos_lepes["harvester"].empty:
-            harvester_ár = 5*pow(2, jatekosok[str(j)].telepitett_harvesterek + 1)
+            if jatekos_lepes["harvester"].iloc[0] != 0:
+                harvester_ár = 5*pow(2, jatekosok[str(j)].telepitett_harvesterek + 1)
         ár = legio*3+crysknife+pistol+lasgun+harvester_ár
         
         #FEGYVEREK CSAK KOVETKEZO KORBEN! TODO
@@ -239,11 +251,13 @@ for turn in range(1,11):
         jatekosok[jatekos].gyozelmek_szama = 0
         jatekosok[jatekos].veresegek_szama = 0
     
+    """
     print("Jatekos allas")
     print(mezok["A1"].ralepne)
     print(jatekosok["1"].mezok)
     print(jatekosok["1"].spice)
     print(mezok["C2"].harvester)
+    """
 
     ###Térkép
 
