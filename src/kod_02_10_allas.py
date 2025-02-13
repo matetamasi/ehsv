@@ -56,8 +56,9 @@ class Jatekos:
     
     def mezorol_lelepes(self, mezok):
         for mezo in mezok:
-            self.mezok.remove(mezo)
-            mezok[mezo].birtokos = None
+            if mezo in self.mezok:
+                self.mezok.remove(mezo)
+                mezok[mezo].birtokos = None
 
     def elfogy_e_viz(self):
         ossz_fogyasztas = 0
@@ -138,33 +139,6 @@ class Mezo:
             else:
                 if self.nev not in jatekosok[jatekos].mezok:
                     jatekosok[jatekos].veresegek_szama = jatekosok[jatekos].veresegek_szama + 1
-        
-"""
-jatekos1 = Jatekos("1", "A1")
-jatekos1.spice = jatekos1.spice + 2
-jatekos2 = Jatekos("2", "B2")
-
-mezok = {}
-nevek = ["A1", "B2", "D4"]
-mezok[nevek[0]] = Mezo("A1", 1, 0, 7, 1, pistol=1, lasgun=3, crysknife=1)
-mezok[nevek[1]] = Mezo("B2", 2,3, -4, 1, pistol=1, lasgun=3, crysknife=1)
-jatekos1.mezore_lepes(["B2"])
-
-jatekos1.pistol = 1
-jatekos1.crysknife = 1
-jatekos1.lasgun = 1
-jatekos1.legio = 1
-
-jatekos2.pistol = 2
-jatekos2.crysknife = 1
-jatekos2.lasgun = 1
-
-
-mezok[nevek[2]] = Mezo(nevek[2], 2,3, -4, 1, pistol=1, lasgun=3, crysknife=1)
-mezok[nevek[2]].ralepne = [jatekos1, jatekos2]
-mezok[nevek[2]].lepesek_szetvalasztas()
-"""
-
 
 
 ### Szabi kódja ###
@@ -201,10 +175,9 @@ for turn in range(1,11):
         jatekos_lepes = pd.read_excel(lepes, sheet_name=str(j)).fillna(0)
         lepesek = jatekos_lepes["rálép"]
         lepesek = lepesek.tolist()
-        if lepesek == [0]: #hogy lépés ne lehessen üres, mert akkor nem működik kulcsnak
+        if all(item == 0 for item in lepesek): #hogy lépés ne lehessen üres, mert akkor nem működik kulcsnak
             lepesek = ["Z0"]
         for lepes in lepesek: #ha van egy rossz lépés utána enged rossz lépést csinálni TODO
-            print(lepes)
             valid_lepes = False
             for mezo in jatekosok[str(j)].mezok:
                 if szomszedos(mezok[mezo], mezok[lepes]): 
@@ -218,7 +191,7 @@ for turn in range(1,11):
                 if mezo == lepesek[k]:
                     mezok[mezo].ralepne.append(str(j))
             for k in range(len(lelepesek)):
-                if mezo == lelepesek[k]:
+                if mezo == lelepesek[k] and mezo in jatekosok[str(j)].mezok:
                     jatekosok[str(j)].mezok.remove(mezo)
                     mezok[mezo].birtokos = 0 
         lasgun = 0
