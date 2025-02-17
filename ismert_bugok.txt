@@ -2,4 +2,7 @@ Ha csinálsz egy rossz rálépést utána bármilyen lépést tudsz csinálni
 A nyersanyagokat az előző vásárlásért levonja attól függetlenül hogy most vettél-e bármit
 Harcnál döntetlen
 Nyersanyag termelés és vesztés
-asd
+Z0-nál lehet harc lesz ami  miatt fegyver vesztés
+Invalid lépés legyen a tábla szélére lépés
+Max 5 támadás??
+
