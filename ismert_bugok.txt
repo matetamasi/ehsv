@@ -1,7 +1,7 @@
-Ha csinálsz egy rossz rálépést utána bármilyen lépést tudsz csinálni
-A nyersanyagokat az előző vásárlásért levonja attól függetlenül hogy most vettél-e bármit
+KÉSZ Ha csinálsz egy rossz rálépést utána bármilyen lépést tudsz csinálni
+KÉSZ A nyersanyagokat az előző vásárlásért levonja attól függetlenül hogy most vettél-e bármit
 Harcnál döntetlen
-Nyersanyag termelés és vesztés
+KÉSZ Nyersanyag termelés és vesztés
 Z0-nál lehet harc lesz ami  miatt fegyver vesztés
 Invalid lépés legyen a tábla szélére lépés
 Max 5 támadás??
@@ -11,3 +11,4 @@ Ha egy mezőre többszöt lép egy játékos (engedi, meg kell tiltani) akkor a 
 A harvester ár többet von le (kb pont kétszer annyit mint amennyit kéne, lehet az indexelés csúszik)
 Harvester azonnal termel (szerintem így akartuk de felírom)
 Ha több mezőre kerülne harvester, akkor egyre rak csak (ami jó, de mi alapján?), az árnál valami furcsaság is van ilyenkor 
+Harchoz kellene majd egy
