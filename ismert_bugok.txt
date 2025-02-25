@@ -8,7 +8,8 @@ Max 5 támadás??
 Ha valahova kerül egy szóköz a mező nevekben akkor az instant error -> elejére egy kód ami lefut a lépéseken és ha talál benne valami nem tetszőt akkor anyázik
 Ha van üres sor az excel lépésben a valódi lépések között error lesz
 Ha egy mezőre többszöt lép egy játékos (engedi, meg kell tiltani) akkor a termelések többszöröződnek
-A harvester ár többet von le (kb pont kétszer annyit mint amennyit kéne, lehet az indexelés csúszik)
+KÉSZ A harvester ár többet von le (kb pont kétszer annyit mint amennyit kéne, lehet az indexelés csúszik)
 Harvester azonnal termel (szerintem így akartuk de felírom)
 Ha több mezőre kerülne harvester, akkor egyre rak csak (ami jó, de mi alapján?), az árnál valami furcsaság is van ilyenkor 
 Harchoz kellene majd egy
+KÉSZ Lehetséges olyan mezőre harvestert telepíteni, amit nem birtokolsz

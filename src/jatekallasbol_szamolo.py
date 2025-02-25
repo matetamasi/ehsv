@@ -196,10 +196,11 @@ for i in range(1,13): #nincs benne hány harvestert telepített
     jatekosok[str(i)].pistol = kezdeti_allas.loc[i-1, "pisztoly"]
     jatekosok[str(i)].crysknife = kezdeti_allas.loc[i-1, "crysknife"]
     jatekosok[str(i)].legio = kezdeti_allas.loc[i-1, "legio"]
+    jatekosok[str(i)].telepitett_harvesterek = kezdeti_allas.loc[i-1, "telepitesek"]
 kiindulo_terkep = pd.read_csv(kezdo_terkep_allas)
 for j in range(len(kiindulo_terkep)):
     if kiindulo_terkep.loc[j, "Harvester"] == 1:
-        mezok[kiindulo_terkep[j, "Mezo_nev"]].harvester = 1
+        mezok[kiindulo_terkep.loc[j, "Mezo_nev"]].harvester = 1
 
 
 for k in range(1,13):
@@ -280,11 +281,13 @@ for jatekos in jatekosok.keys():
             jatekosok[jatekos].pistol = int(jatekosok[jatekos].pistol+pistol)
             jatekosok[jatekos].crysknife = int(jatekosok[jatekos].crysknife+crysknife)
             jatekosok[jatekos].legio=int(jatekosok[jatekos].legio+legio)
-            jatekosok[jatekos].telepitett_harvesterek = int(jatekosok[jatekos].telepitett_harvesterek + 1)
             if (not jatekos_lepes["harvester"].empty) and pd.notna(jatekos_lepes["harvester"][0]) and jatekos_lepes["harvester"][0] != 0:
-                print(str(jatekos_lepes["harvester"][0]) + " mezore harvester kerult")
-                mezok[jatekos_lepes["harvester"][0]].harvester_telepites()
-        
+                if jatekos_lepes["harvester"][0] in jatekosok[jatekos].mezok:
+                    print(str(jatekos_lepes["harvester"][0]) + " mezore harvester kerult")
+                    mezok[jatekos_lepes["harvester"][0]].harvester_telepites()
+                    jatekosok[jatekos].telepitett_harvesterek = int(jatekosok[jatekos].telepitett_harvesterek + 1)
+                else:
+                    print(str(jatekos)+" rossz helyre raknak harvestert")
         jatekosok[jatekos].spice_termeles()
     
 
@@ -335,7 +338,6 @@ for i in range(1,13): #játékos nyersanyagok kiírása
     jatekos_nyersanyagok.append(jatekosok[str(i)].pistol)
     jatekos_nyersanyagok.append(jatekosok[str(i)].legio)
     printout.loc[len(printout)] = jatekos_nyersanyagok
-    print(jatekos_nyersanyagok)
     jatekos_nyersanyagok = []
 print("A nyersanyagok")
 print(printout)
@@ -345,8 +347,8 @@ ax.set_aspect('equal')
 plt.show()
 #input("Nyomj Entert, hogy a következő körbe lépj")
 
-#játékállás printoutot csinál egy dataframebe
-fejlec = ["jatekos", "viz", "spice", "lasgun", "pisztoly", "crysknife", "legio"]
+#játékállás printoutot csinál egy dataframebe majd csv-be
+fejlec = ["jatekos", "viz", "spice", "lasgun", "pisztoly", "crysknife", "legio", "telepitesek"]
 jatekosallas_mentes = pd.DataFrame(columns=fejlec)
 for i in range(1,13):
     uj_sor = []
@@ -357,6 +359,7 @@ for i in range(1,13):
     uj_sor.append(jatekosok[str(i)].pistol)
     uj_sor.append(jatekosok[str(i)].crysknife)
     uj_sor.append(jatekosok[str(i)].legio)
+    uj_sor.append(jatekosok[str(i)].telepitett_harvesterek)
     jatekosallas_mentes.loc[len(jatekosallas_mentes)] = uj_sor
 
 terkep_mentes = pd.DataFrame(columns=["Mezo_nev","Birtokos","Harvester"])
