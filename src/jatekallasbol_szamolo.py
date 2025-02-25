@@ -13,10 +13,14 @@ resources = root / 'resources'
 terkepadat = resources / "terkep_adatok.xlsx"
 jatekallas = resources / "terkep_allas.xlsx" #játékállást tartalmazó excel
 lepes_fajl = resources / "lepes.xlsx" #kör lépéseinek az excele
-
+veg_jatekos_allas = resources / "veg_jatekos.csv" #kör végállása
+kezdo_jatekos_allas = resources / "kezdo_jatekos.csv" #kör kezdőállása
+kezdo_terkep_allas = resources / "kezdo_terkep.csv" #kör harvesteri kezdetben
+veg_terkep_allas = resources / "veg_terkep.csv" #kör harvesterei végben
+#terkepallas_printout = resources / "terkepallas_printout.xlsx" #kör eredményének az excele
+#ures_terkepallas = resources / "ures_terkepallas.xlsx" #üres térképállás
 terkep_allas = pd.read_excel(jatekallas, sheet_name="térkép").fillna(0) #r után a térképes excel elérése
 szinek = pd.read_excel(jatekallas, sheet_name="játékos színek") #r után a térképes excel elérése
-
 
 def szomszedos(A,B):
     #A mező szomszédja-e B-nek
@@ -172,161 +176,199 @@ kezdőmezők = ["C1","G1","K1","O1","Q3","Q7","O11","K15","G15","C11","A7","A3"]
 for l in range(1,13):
     jatekosok[str(l)]=Jatekos(str(l), str(kezdőmezők[l-1]))
     mezok[kezdőmezők[l-1]].birtokos = str(l)
-#print(szomszedos(mezok["C1"],mezok["D3"]))
+
 jatek_allas = pd.read_excel(jatekallas, sheet_name="térkép").fillna(0)
-#print(jatek_allas)
+
 for i in range(1,13):
     for j in range(0,len(jatek_allas)):
         if jatek_allas.loc[j,"Kié?"] == i:
             mezok[jatek_allas.loc[j,"Koordináta"]].birtokos = i
     vagyon = pd.read_excel(jatekallas, sheet_name=str(i)).fillna(0)
     jatek_allas = pd.read_excel(jatekallas, sheet_name="térkép").fillna(0)
-#print(jatek_allas)
-#jatékállást beolvas
-for i in range(1,13):
-    for j in range(0,len(jatek_allas)):
-        if jatek_allas.loc[j,"Kié?"] == i:
-            mezok[jatek_allas.loc[j,"Koordináta"]].birtokos = i
-    vagyon = pd.read_excel(jatekallas, sheet_name=str(i)).fillna(0)
-    jatekosok[str(i)].viz = vagyon.loc[0, "mennyiség"]
-    jatekosok[str(i)].spice = vagyon.loc[1, "mennyiség"]
-    jatekosok[str(i)].lasgun = vagyon.loc[2, "mennyiség"]
-    jatekosok[str(i)].pistol = vagyon.loc[3, "mennyiség"]
-    jatekosok[str(i)].crysknife = vagyon.loc[4, "mennyiség"]
-    jatekosok[str(i)].legio = vagyon.loc[5, "mennyiség"]
-print("a hetes játékos légiói: "+str(jatekosok["7"].legio))
+
+#kezdeti jatékállást beolvas
+kezdeti_allas = pd.read_csv(kezdo_jatekos_allas)
+#print(kezdeti_allas)
+for i in range(1,13): #nincs benne hány harvestert telepített
+    jatekosok[str(i)].viz = kezdeti_allas.loc[i-1, "viz"]
+    jatekosok[str(i)].spice = kezdeti_allas.loc[i-1, "spice"]
+    jatekosok[str(i)].lasgun = kezdeti_allas.loc[i-1, "lasgun"]
+    jatekosok[str(i)].pistol = kezdeti_allas.loc[i-1, "pisztoly"]
+    jatekosok[str(i)].crysknife = kezdeti_allas.loc[i-1, "crysknife"]
+    jatekosok[str(i)].legio = kezdeti_allas.loc[i-1, "legio"]
+kiindulo_terkep = pd.read_csv(kezdo_terkep_allas)
+for j in range(len(kiindulo_terkep)):
+    if kiindulo_terkep.loc[j, "Harvester"] == 1:
+        mezok[kiindulo_terkep[j, "Mezo_nev"]].harvester = 1
+
+
+for k in range(1,13):
+    birtok = []
+    for j in range(len(kiindulo_terkep)):
+        if kiindulo_terkep.loc[j, "Birtokos"] == k:
+            birtok.append(kiindulo_terkep.loc[j, "Mezo_nev"])
+            mezok[kiindulo_terkep.loc[j, "Mezo_nev"]].birtokos = str(k) #miben van a birtokos str vagy int?
+    jatekosok[str(k)].mezok = birtok
 
 
 #Jatek menet
-for turn in range(1,11):
-    print(str(turn) + ". Kör")
+#for turn in range(1,11):
+#    print(str(turn) + ". Kör")
 
-    #mezo.ralepne dolgot tölti fel
-    for jatekos in jatekosok.keys():
-        if jatekosok[jatekos].elfogy_e_viz():
-            print("Elfogyott a viz, " + str(jatekos) + ". jatekos köre kihagyva")
-            jatekosok[jatekos].viz = 0
-        else:
-            jatekos_lepes = pd.read_excel(lepes_fajl, sheet_name=jatekos).fillna(0)
-            lepesek = jatekos_lepes["rálép"]
-            lepesek = lepesek.tolist()
-            if all(item == 0 for item in lepesek): #hogy lépés ne lehessen üres, mert akkor nem működik kulcsnak
-                lepesek = ["Z0"]
-            
-            ervenytelen_lepesek = []
-            for lepes in lepesek: #ha van egy rossz lépés utána enged rossz lépést csinálni TODO
-                valid_lepes = False
-                for mezo in jatekosok[jatekos].mezok:
-                    if szomszedos(mezok[mezo], mezok[lepes]): 
-                        valid_lepes = True
-                if not valid_lepes:
-                    ervenytelen_lepesek.append(lepes)
-                    print(jatekos + ". jatekos probalt lepni a " + lepes + " mezore, ami nem szomszedos egyik sajatjaval")
-            for lepes in ervenytelen_lepesek:
-                lepesek.remove(lepes)
-            
-
-            lelepesek = jatekos_lepes["lelép"]
-            for mezo in mezo_nevek:
-                for k in range(len(lepesek)):
-                    if mezo == lepesek[k]:
-                        mezok[mezo].ralepne.append(jatekos)
-                for k in range(len(lelepesek)):
-                    if mezo == lelepesek[k] and mezo in jatekosok[jatekos].mezok:
-                        jatekosok[jatekos].mezok.remove(mezo)
-                        mezok[mezo].birtokos = 0 
-            lasgun = 0
-            if not jatekos_lepes["lasgun"].empty:
-                lasgun = jatekos_lepes["lasgun"][0]
-
-            crysknife = 0
-            if not jatekos_lepes["crysknife"].empty:
-                crysknife = jatekos_lepes["crysknife"][0]
-                
-            pistol = 0
-            if not jatekos_lepes["pisztoly"].empty:
-                pistol = jatekos_lepes["pisztoly"][0]
-
-            legio = 0
-            if not jatekos_lepes["légiók"].empty:
-                legio = jatekos_lepes["légiók"][0]
-            harvester_ár = 0
-
-            if not jatekos_lepes["harvester"].empty:
-                if jatekos_lepes["harvester"].iloc[0] != 0:
-                    harvester_ár = 5*pow(2, jatekosok[jatekos].telepitett_harvesterek + 1)
-            ár = legio*3+crysknife+pistol+lasgun+harvester_ár
-            
-            #FEGYVEREK CSAK KOVETKEZO KORBEN! TODO
-            if ár > jatekosok[jatekos].spice:
-                print(jatekos+"elbaszta a költségvetést")
-            else:
-                jatekosok[jatekos].spice = jatekosok[jatekos].spice-ár
-                jatekosok[jatekos].lasgun = int(jatekosok[jatekos].lasgun+lasgun)
-                jatekosok[jatekos].pistol = int(jatekosok[jatekos].pistol+pistol)
-                jatekosok[jatekos].crysknife = int(jatekosok[jatekos].crysknife+crysknife)
-                jatekosok[jatekos].legio=int(jatekosok[jatekos].legio+legio)
-                jatekosok[jatekos].telepitett_harvesterek = int(jatekosok[jatekos].telepitett_harvesterek + 1)
-                if (not jatekos_lepes["harvester"].empty) and pd.notna(jatekos_lepes["harvester"][0]) and jatekos_lepes["harvester"][0] != 0:
-                    print(str(jatekos_lepes["harvester"][0]) + " mezore harvester kerult")
-                    mezok[jatekos_lepes["harvester"][0]].harvester_telepites()
-            
-            jatekosok[jatekos].spice_termeles()
+#mezo.ralepne dolgot tölti fel
+for jatekos in jatekosok.keys():
+    if jatekosok[jatekos].elfogy_e_viz():
+        print("Elfogyott a viz, " + str(jatekos) + ". jatekos köre kihagyva")
+        jatekosok[jatekos].viz = 0
+    else:
+        jatekos_lepes = pd.read_excel(lepes_fajl, sheet_name=jatekos).fillna(0)
+        lepesek = jatekos_lepes["rálép"]
+        lepesek = lepesek.tolist()
+        if all(item == 0 for item in lepesek): #hogy lépés ne lehessen üres, mert akkor nem működik kulcsnak
+            lepesek = ["Z0"]
         
-    
-    for mezonev in mezok.keys():
-        mezok[mezonev].lepesek_szetvalasztas()
+        ervenytelen_lepesek = []
+        for lepes in lepesek: #ha van egy rossz lépés utána enged rossz lépést csinálni TODO
+            valid_lepes = False
+            for mezo in jatekosok[jatekos].mezok:
+                if szomszedos(mezok[mezo], mezok[lepes]): 
+                    valid_lepes = True
+            if not valid_lepes:
+                ervenytelen_lepesek.append(lepes)
+                print(jatekos + ". jatekos probalt lepni a " + lepes + " mezore, ami nem szomszedos egyik sajatjaval")
+        for lepes in ervenytelen_lepesek:
+            lepesek.remove(lepes)
+        
 
-        mezok[mezonev].ralepne = []
-    
-    for jatekos in jatekosok.keys():
-        jatekosok[jatekos].gyozelmek_szama = 0
-        jatekosok[jatekos].veresegek_szama = 0
-    
-    ###Térkép
+        lelepesek = jatekos_lepes["lelép"]
+        for mezo in mezo_nevek:
+            for k in range(len(lepesek)):
+                if mezo == lepesek[k]:
+                    mezok[mezo].ralepne.append(jatekos)
+            for k in range(len(lelepesek)):
+                if mezo == lelepesek[k] and mezo in jatekosok[jatekos].mezok:
+                    jatekosok[jatekos].mezok.remove(mezo)
+                    mezok[mezo].birtokos = 0 
+        lasgun = 0
+        if not jatekos_lepes["lasgun"].empty:
+            lasgun = jatekos_lepes["lasgun"][0]
 
-    fig, ax = plt.subplots()
-    sor = terkep_allas.shape[0]
-    #print(terkep_allas)
-    for i in range(sor):
-        X = terkep_allas.loc[i, "X"]
-        Y = terkep_allas.loc[i, "Y"]
-        #print(X)
-        #print(Y)
-        koordináta = terkep_allas.loc[i, "Koordináta"]
-        felirat = mezok[str(koordináta)].birtokos
-        harvester = mezok[str(koordináta)].harvester
-        #print("###")
-        #print(harvester)
-        #print(type(harvester))
-        szín = szinek.loc[szinek["Játékos"] == int(felirat), "Szín"]
-        if not szín.empty:
-            color = szín.values[0] 
+        crysknife = 0
+        if not jatekos_lepes["crysknife"].empty:
+            crysknife = jatekos_lepes["crysknife"][0]
+            
+        pistol = 0
+        if not jatekos_lepes["pisztoly"].empty:
+            pistol = jatekos_lepes["pisztoly"][0]
+
+        legio = 0
+        if not jatekos_lepes["légiók"].empty:
+            legio = jatekos_lepes["légiók"][0]
+        harvester_ár = 0
+
+        if not jatekos_lepes["harvester"].empty:
+            if jatekos_lepes["harvester"].iloc[0] != 0:
+                harvester_ár = 5*pow(2, jatekosok[jatekos].telepitett_harvesterek + 1)
+        ár = legio*3+crysknife+pistol+lasgun+harvester_ár
+        
+        #FEGYVEREK CSAK KOVETKEZO KORBEN! TODO
+        if ár > jatekosok[jatekos].spice:
+            print(jatekos+"elbaszta a költségvetést")
         else:
-            color = 'gray'
-        hexagon = patches.RegularPolygon((1.5*X, math.sqrt(3)*Y), numVertices=6, radius=1, orientation=math.pi/6, edgecolor='black', facecolor=color)
-        ax.text(1.5*X, math.sqrt(3)*Y, felirat, ha='center', va='center', fontsize=6, color='black')
-        ax.text(1.5*X, math.sqrt(3)*Y+0.5, koordináta, ha='center', va='center', fontsize=6, color='black')
-        if harvester == 1:
-            ax.text(1.5*X, math.sqrt(3)*Y-0.5, "van", ha='center', va='center', fontsize=6, color='red')
-        ax.add_patch(hexagon)
+            jatekosok[jatekos].spice = jatekosok[jatekos].spice-ár
+            jatekosok[jatekos].lasgun = int(jatekosok[jatekos].lasgun+lasgun)
+            jatekosok[jatekos].pistol = int(jatekosok[jatekos].pistol+pistol)
+            jatekosok[jatekos].crysknife = int(jatekosok[jatekos].crysknife+crysknife)
+            jatekosok[jatekos].legio=int(jatekosok[jatekos].legio+legio)
+            jatekosok[jatekos].telepitett_harvesterek = int(jatekosok[jatekos].telepitett_harvesterek + 1)
+            if (not jatekos_lepes["harvester"].empty) and pd.notna(jatekos_lepes["harvester"][0]) and jatekos_lepes["harvester"][0] != 0:
+                print(str(jatekos_lepes["harvester"][0]) + " mezore harvester kerult")
+                mezok[jatekos_lepes["harvester"][0]].harvester_telepites()
+        
+        jatekosok[jatekos].spice_termeles()
+    
+
+for mezonev in mezok.keys():
+    mezok[mezonev].lepesek_szetvalasztas()
+
+    mezok[mezonev].ralepne = []
+
+for jatekos in jatekosok.keys():
+    jatekosok[jatekos].gyozelmek_szama = 0
+    jatekosok[jatekos].veresegek_szama = 0
+
+###Térkép
+
+fig, ax = plt.subplots()
+sor = terkep_allas.shape[0]
+#print(terkep_allas)
+for i in range(sor):
+    X = terkep_allas.loc[i, "X"]
+    Y = terkep_allas.loc[i, "Y"]
+    #print(X)
+    #print(Y)
+    koordináta = terkep_allas.loc[i, "Koordináta"]
+    felirat = mezok[str(koordináta)].birtokos
+    harvester = mezok[str(koordináta)].harvester
+    #print("###")
+    #print(harvester)
+    #print(type(harvester))
+    szín = szinek.loc[szinek["Játékos"] == int(felirat), "Szín"]
+    if not szín.empty:
+        color = szín.values[0] 
+    else:
+        color = 'gray'
+    hexagon = patches.RegularPolygon((1.5*X, math.sqrt(3)*Y), numVertices=6, radius=1, orientation=math.pi/6, edgecolor='black', facecolor=color)
+    ax.text(1.5*X, math.sqrt(3)*Y, felirat, ha='center', va='center', fontsize=6, color='black')
+    ax.text(1.5*X, math.sqrt(3)*Y+0.5, koordináta, ha='center', va='center', fontsize=6, color='black')
+    if harvester == 1:
+        ax.text(1.5*X, math.sqrt(3)*Y-0.5, "van", ha='center', va='center', fontsize=6, color='red')
+    ax.add_patch(hexagon)
+jatekos_nyersanyagok = []
+printout = pd.DataFrame(columns=["név","spice","viz", "lasgun", "crysknife", "pistol", "legio"])
+for i in range(1,13): #játékos nyersanyagok kiírása
+    jatekos_nyersanyagok.append(jatekosok[str(i)].nev)
+    jatekos_nyersanyagok.append(jatekosok[str(i)].spice)
+    jatekos_nyersanyagok.append(jatekosok[str(i)].viz)
+    jatekos_nyersanyagok.append(jatekosok[str(i)].lasgun)
+    jatekos_nyersanyagok.append(jatekosok[str(i)].crysknife)
+    jatekos_nyersanyagok.append(jatekosok[str(i)].pistol)
+    jatekos_nyersanyagok.append(jatekosok[str(i)].legio)
+    printout.loc[len(printout)] = jatekos_nyersanyagok
+    print(jatekos_nyersanyagok)
     jatekos_nyersanyagok = []
-    printout = pd.DataFrame(columns=["név","spice","viz", "lasgun", "crysknife", "pistol", "legio"])
-    for i in range(1,13): #játékos nyersanyagok kiírása
-        jatekos_nyersanyagok.append(jatekosok[str(i)].nev)
-        jatekos_nyersanyagok.append(jatekosok[str(i)].spice)
-        jatekos_nyersanyagok.append(jatekosok[str(i)].viz)
-        jatekos_nyersanyagok.append(jatekosok[str(i)].lasgun)
-        jatekos_nyersanyagok.append(jatekosok[str(i)].crysknife)
-        jatekos_nyersanyagok.append(jatekosok[str(i)].pistol)
-        jatekos_nyersanyagok.append(jatekosok[str(i)].legio)
-        printout.loc[len(printout)] = jatekos_nyersanyagok
-        print(jatekos_nyersanyagok)
-        jatekos_nyersanyagok = []
-    print("A nyersanyagok")
-    print(printout)
-    ax.set_xlim(0.5, 26.5)
-    ax.set_ylim(-22, 8)
-    ax.set_aspect('equal')
-    plt.show()
-    input("Nyomj Entert, hogy a következő körbe lépj")
+print("A nyersanyagok")
+print(printout)
+ax.set_xlim(0.5, 26.5)
+ax.set_ylim(-22, 8)
+ax.set_aspect('equal')
+plt.show()
+#input("Nyomj Entert, hogy a következő körbe lépj")
+
+#játékállás printoutot csinál egy dataframebe
+fejlec = ["jatekos", "viz", "spice", "lasgun", "pisztoly", "crysknife", "legio"]
+jatekosallas_mentes = pd.DataFrame(columns=fejlec)
+for i in range(1,13):
+    uj_sor = []
+    uj_sor.append(str(i))
+    uj_sor.append(jatekosok[str(i)].viz)
+    uj_sor.append(jatekosok[str(i)].spice)
+    uj_sor.append(jatekosok[str(i)].lasgun)
+    uj_sor.append(jatekosok[str(i)].pistol)
+    uj_sor.append(jatekosok[str(i)].crysknife)
+    uj_sor.append(jatekosok[str(i)].legio)
+    jatekosallas_mentes.loc[len(jatekosallas_mentes)] = uj_sor
+
+terkep_mentes = pd.DataFrame(columns=["Mezo_nev","Birtokos","Harvester"])
+for mezo in mezo_nevek:
+    uj_sor = []
+    uj_sor.append(mezo)
+    uj_sor.append(mezok[mezo].birtokos)
+    if mezok[mezo].harvester == 1:
+        uj_sor.append(1)
+    else: 
+        uj_sor.append(0)
+    terkep_mentes.loc[len(terkep_mentes)] = uj_sor
+
+jatekosallas_mentes.to_csv(veg_jatekos_allas, index=False)
+terkep_mentes.to_csv(veg_terkep_allas, index=False)
