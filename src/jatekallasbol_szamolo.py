@@ -128,7 +128,7 @@ class Mezo:
     def harc(self):
         haderok = {}
         for jatekos in self.ralepne:
-            print("### Harc ###")
+            print("### Harc ###"+str(self.nev))
             print("jatekos " + jatekosok[jatekos].nev)
             hadero = self.pistol * jatekosok[jatekos].pistol + self.lasgun * jatekosok[jatekos].lasgun + self.crysknife * jatekosok[jatekos].crysknife
             print("hadero: " + str(hadero))
@@ -177,19 +177,18 @@ for l in range(1,13):
     jatekosok[str(l)]=Jatekos(str(l), str(kezdőmezők[l-1]))
     mezok[kezdőmezők[l-1]].birtokos = str(l)
 
+""" #már nem kell mert utána levő rész kezeli
 jatek_allas = pd.read_excel(jatekallas, sheet_name="térkép").fillna(0)
-
 for i in range(1,13):
     for j in range(0,len(jatek_allas)):
         if jatek_allas.loc[j,"Kié?"] == i:
             mezok[jatek_allas.loc[j,"Koordináta"]].birtokos = i
     vagyon = pd.read_excel(jatekallas, sheet_name=str(i)).fillna(0)
     jatek_allas = pd.read_excel(jatekallas, sheet_name="térkép").fillna(0)
-
+"""
 #kezdeti jatékállást beolvas
 kezdeti_allas = pd.read_csv(kezdo_jatekos_allas)
-#print(kezdeti_allas)
-for i in range(1,13): #nincs benne hány harvestert telepített
+for i in range(1,13):
     jatekosok[str(i)].viz = kezdeti_allas.loc[i-1, "viz"]
     jatekosok[str(i)].spice = kezdeti_allas.loc[i-1, "spice"]
     jatekosok[str(i)].lasgun = kezdeti_allas.loc[i-1, "lasgun"]
@@ -211,11 +210,11 @@ for k in range(1,13):
             mezok[kiindulo_terkep.loc[j, "Mezo_nev"]].birtokos = str(k) #miben van a birtokos str vagy int?
     jatekosok[str(k)].mezok = birtok
 
-
-#Jatek menet
-#for turn in range(1,11):
-#    print(str(turn) + ". Kör")
-
+""" #kiszedve 
+Jatek menet 
+for turn in range(1,11):
+    print(str(turn) + ". Kör")
+"""
 #mezo.ralepne dolgot tölti fel
 for jatekos in jatekosok.keys():
     if jatekosok[jatekos].elfogy_e_viz():
@@ -227,7 +226,8 @@ for jatekos in jatekosok.keys():
         lepesek = lepesek.tolist()
         if all(item == 0 for item in lepesek): #hogy lépés ne lehessen üres, mert akkor nem működik kulcsnak
             lepesek = ["Z0"]
-        
+        print(str(jatekos)+". jatekos lepesei")
+        print(lepesek)
         ervenytelen_lepesek = []
         for lepes in lepesek: #ha van egy rossz lépés utána enged rossz lépést csinálni TODO
             valid_lepes = False
@@ -308,14 +308,9 @@ sor = terkep_allas.shape[0]
 for i in range(sor):
     X = terkep_allas.loc[i, "X"]
     Y = terkep_allas.loc[i, "Y"]
-    #print(X)
-    #print(Y)
     koordináta = terkep_allas.loc[i, "Koordináta"]
     felirat = mezok[str(koordináta)].birtokos
     harvester = mezok[str(koordináta)].harvester
-    #print("###")
-    #print(harvester)
-    #print(type(harvester))
     szín = szinek.loc[szinek["Játékos"] == int(felirat), "Szín"]
     if not szín.empty:
         color = szín.values[0] 
@@ -329,7 +324,7 @@ for i in range(sor):
     ax.add_patch(hexagon)
 jatekos_nyersanyagok = []
 printout = pd.DataFrame(columns=["név","spice","viz", "lasgun", "crysknife", "pistol", "legio"])
-for i in range(1,13): #játékos nyersanyagok kiírása
+for i in range(1,13): #játékos nyersanyagok kiírása, később véletlen megcsináltam mégegyszer
     jatekos_nyersanyagok.append(jatekosok[str(i)].nev)
     jatekos_nyersanyagok.append(jatekosok[str(i)].spice)
     jatekos_nyersanyagok.append(jatekosok[str(i)].viz)

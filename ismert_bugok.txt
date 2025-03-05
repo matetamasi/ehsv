@@ -2,7 +2,7 @@ KÉSZ Ha csinálsz egy rossz rálépést utána bármilyen lépést tudsz csiná
 KÉSZ A nyersanyagokat az előző vásárlásért levonja attól függetlenül hogy most vettél-e bármit
 Harcnál döntetlen
 KÉSZ Nyersanyag termelés és vesztés
-Z0-nál lehet harc lesz ami  miatt fegyver vesztés
+KÉSZ? (nem látom hogy hibát okozna de nem csináltam vele semmit) Z0-nál lehet harc lesz ami  miatt fegyver vesztés
 Invalid lépés legyen a tábla szélére lépés
 Max 5 támadás??
 Ha valahova kerül egy szóköz a mező nevekben akkor az instant error -> elejére egy kód ami lefut a lépéseken és ha talál benne valami nem tetszőt akkor anyázik
