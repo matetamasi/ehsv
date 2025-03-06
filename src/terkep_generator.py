@@ -1,6 +1,7 @@
 from PIL import Image, ImageDraw, ImageFont
 import pandas as pd
 from pathlib import Path
+import matplotlib.colors as mcolors
 
 mezo_tipus = 1 #1:sivatag 0: hegy, 2: ures
 fegyver_tipus = 2 #0: pistol, 1:lasgun, 2:knife, 3: külső
@@ -19,7 +20,14 @@ sivatag_png = resources / "sivatag.png"
 ures_png = resources / "ures.png"
 grid_png = resources / "grid.png"
 font_path = resources / "Dune_Rise.otf"
+jatekos_szimbolum = resources / "fremen_ikon.png"
 terkep_fajl = resources / "terkep_adatok_2.xlsx"
+jatek_allas = resources / "kezdo_terkep.csv"
+jatek_allas_xlsx =  resources / "terkep_allas.xlsx"
+#pandas DF-ek
+jatekos_szinek = pd.read_excel(jatek_allas_xlsx, sheet_name="játékos színek")
+mezo_birtokos_DF = pd.read_csv(jatek_allas)
+print(jatekos_szinek)
 
 #dune font
 dune_font = ImageFont.truetype(font_path, 80)
@@ -89,6 +97,38 @@ for i in range(len(terkep_DF)):
     draw.text((spice_x, spice_y), number_text, fill="black", font=dune_font, anchor="mm")
     rot_spice_img = spice_img.rotate(60, resample=Image.BICUBIC, center=(spice_x, spice_y))
     hex_tile = Image.alpha_composite(hex_tile, rot_spice_img)
+    
+    #birtokos jelző rárakás
+    birtokos = mezo_birtokos_DF.loc[i, "Birtokos"]
+    colors = mcolors.CSS4_COLORS  # Dictionary of color names
+    #print(colors.keys())  # Lists available colors
+    
+    if birtokos != 0:
+        for i in range(len(jatekos_szinek)):
+            if jatekos_szinek.loc[i, "Játékos"] == birtokos:
+                szin = jatekos_szinek.loc[i, "Szín"]
+        colors = mcolors.CSS4_COLORS
+        colour_hex = mcolors.to_rgba(szin, alpha=1)
+        colour_rgb = tuple(int(c * 255) for c in colour_hex)
+        # Load the image (ensure it has an alpha channel)
+        ikon = Image.open(jatekos_szimbolum).convert("RGBA")
+
+        # Get pixel data
+        data = ikon.getdata()
+        # Create a new image with recolored pixels
+        new_data = []
+        for r, g, b, a in data:
+            if a > 0 and r < 50 and g < 50 and b < 50:  # Keep transparency, recolor only dark pixels
+                new_data.append(colour_rgb)  
+            else:
+                new_data.append((r, g, b, a))  # Keep other pixels unchanged
+        ikon.putdata(new_data)
+        max_size = (200, 200)
+        ikon.thumbnail(max_size)
+        ikon_x = (hex_w - ikon.width) // 2
+        ikon_y = (hex_h - ikon.height) // 2
+        hex_tile.paste(ikon, (ikon_x, ikon_y), ikon)
+
 
     #fegyver típus választása
     if fegyver_tipus == 0:
