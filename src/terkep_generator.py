@@ -22,7 +22,7 @@ grid_png = resources / "grid.png"
 font_path = resources / "Dune_Rise.otf"
 jatekos_szimbolum = resources / "fremen_ikon.png"
 terkep_fajl = resources / "terkep_adatok_2.xlsx"
-jatek_allas = resources / "kezdo_terkep.csv"
+jatek_allas = resources / "kezdo_terkep4.csv" #itt szerk
 jatek_allas_xlsx =  resources / "terkep_allas.xlsx"
 #pandas DF-ek
 jatekos_szinek = pd.read_excel(jatek_allas_xlsx, sheet_name="játékos színek")
@@ -37,6 +37,7 @@ hex_map = Image.new("RGBA", (8944, 10098), (255, 255, 255, 0))
 #mezők generálása és térképre helyezése
 for i in range(len(terkep_DF)):
     mezo_nev = terkep_DF.loc[i, "mező"]
+    harvester = mezo_birtokos_DF.loc[i, "Harvester"]
     fegyver_nev = terkep_DF.loc[i, "fegyver típus"]
     viz_szorzo = int(terkep_DF.loc[i, "víz szorzó"])
     spice_szorzo = int(terkep_DF.loc[i, "spice szorzó"])
@@ -61,7 +62,7 @@ for i in range(len(terkep_DF)):
     elif fegyver_nev == "Crysknife":
         fegyver_tipus = 2
     elif fegyver_nev == "Lasgun":
-        fegyver_tipus = 2
+        fegyver_tipus = 1
     else: 
         print("Hiányzó fegyver típus: "+str(fegyver_nev)+" a "+str(i+2)+". sorban")
     if mezo_tipus == 0:
@@ -92,7 +93,10 @@ for i in range(len(terkep_DF)):
     #spice szorzó
     spice_img = Image.new("RGBA", (hex_w, hex_h), (255, 255, 255, 0))
     draw = ImageDraw.Draw(spice_img)
-    number_text = str(spice_szorzo)
+    if harvester == 1: #van-e harvester a mezőn
+        number_text = str(spice_szorzo*2)
+    else:
+        number_text = str(spice_szorzo)
     spice_x, spice_y = hex_w // 2 +240, hex_h // 2 +60
     draw.text((spice_x, spice_y), number_text, fill="black", font=dune_font, anchor="mm")
     rot_spice_img = spice_img.rotate(60, resample=Image.BICUBIC, center=(spice_x, spice_y))
@@ -162,3 +166,4 @@ for i in range(len(terkep_DF)):
     hex_map.paste(hex_tile, (int(tile_x), int(tile_y)), hex_tile)
 print("Türelem térképet terem!")
 hex_map.show() 
+hex_map.save("allas.png")

@@ -13,10 +13,10 @@ resources = root / 'resources'
 terkepadat = resources / "terkep_adatok.xlsx"
 jatekallas = resources / "terkep_allas.xlsx" #játékállást tartalmazó excel
 lepes_fajl = resources / "lepes.xlsx" #kör lépéseinek az excele
-veg_jatekos_allas = resources / "veg_jatekos.csv" #kör végállása
-kezdo_jatekos_allas = resources / "kezdo_jatekos.csv" #kör kezdőállása
-kezdo_terkep_allas = resources / "kezdo_terkep.csv" #kör harvesteri kezdetben
-veg_terkep_allas = resources / "veg_terkep.csv" #kör harvesterei végben
+veg_jatekos_allas = resources / "kezdo_jatekos5.csv" #kör végállása
+kezdo_jatekos_allas = resources / "kezdo_jatekos4.csv" #kör kezdőállása
+kezdo_terkep_allas = resources / "kezdo_terkep4.csv" #kör harvesteri kezdetben
+veg_terkep_allas = resources / "kezdo_terkep5.csv" #kör harvesterei végben
 #terkepallas_printout = resources / "terkepallas_printout.xlsx" #kör eredményének az excele
 #ures_terkepallas = resources / "ures_terkepallas.xlsx" #üres térképállás
 terkep_allas = pd.read_excel(jatekallas, sheet_name="térkép").fillna(0) #r után a térképes excel elérése
@@ -33,7 +33,7 @@ def szomszedos(A,B):
         if A.X-B.X == 1 and A.Y-B.Y == -1:
             return False
         else:
-            #print(str(A)+" szomszédja"+str(B))
+            print(str(A)+" szomszédja"+str(B))
             return True
     else: 
         return False
@@ -87,6 +87,13 @@ class Jatekos:
             self.spice = self.spice + mezok[mezo].spice
     
     def fegyver_vesztes(self):
+        print("##Fegyverek###")
+        print("A játékos"+self.nev)
+        print("pistol, lashun, knife, legio")
+        print(self.pistol)
+        print(self.lasgun)
+        print(self.crysknife)
+        print(self.legio)
         szorzo = 1 - (0.1 * self.veresegek_szama + 0.2 * self.gyozelmek_szama)
         if szorzo < 0:
             szorzo = 0
@@ -94,6 +101,11 @@ class Jatekos:
         self.lasgun = math.ceil(self.lasgun * szorzo)
         self.crysknife = math.ceil(self.crysknife * szorzo)
         self.legio = math.ceil(self.legio * szorzo)
+        print("pistol, lashun, knife, legio")
+        print(self.pistol)
+        print(self.lasgun)
+        print(self.crysknife)
+        print(self.legio)
         
 
 
@@ -297,6 +309,7 @@ for mezonev in mezok.keys():
     mezok[mezonev].ralepne = []
 
 for jatekos in jatekosok.keys():
+    jatekosok[jatekos].fegyver_vesztes()
     jatekosok[jatekos].gyozelmek_szama = 0
     jatekosok[jatekos].veresegek_szama = 0
 
