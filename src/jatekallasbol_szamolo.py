@@ -13,10 +13,10 @@ resources = root / 'resources'
 terkepadat = resources / "terkep_adatok.xlsx"
 jatekallas = resources / "terkep_allas.xlsx" #játékállást tartalmazó excel
 lepes_fajl = resources / "lepes.xlsx" #kör lépéseinek az excele
-veg_jatekos_allas = resources / "kezdo_jatekos5.csv" #kör végállása
-kezdo_jatekos_allas = resources / "kezdo_jatekos4.csv" #kör kezdőállása
-kezdo_terkep_allas = resources / "kezdo_terkep4.csv" #kör harvesteri kezdetben
-veg_terkep_allas = resources / "kezdo_terkep5.csv" #kör harvesterei végben
+veg_jatekos_allas = resources / "kezdo_jatekos1.csv" #kör végállása
+kezdo_jatekos_allas = resources / "kezdo_jatekos0.csv" #kör kezdőállása
+kezdo_terkep_allas = resources / "kezdo_terkep0.csv" #kör harvesteri kezdetben
+veg_terkep_allas = resources / "kezdo_terkep1.csv" #kör harvesterei végben
 #terkepallas_printout = resources / "terkepallas_printout.xlsx" #kör eredményének az excele
 #ures_terkepallas = resources / "ures_terkepallas.xlsx" #üres térképállás
 terkep_allas = pd.read_excel(jatekallas, sheet_name="térkép").fillna(0) #r után a térképes excel elérése
@@ -89,7 +89,7 @@ class Jatekos:
     def fegyver_vesztes(self):
         print("##Fegyverek###")
         print("A játékos"+self.nev)
-        print("pistol, lashun, knife, legio")
+        print("pistol, lasgun, knife, legio")
         print(self.pistol)
         print(self.lasgun)
         print(self.crysknife)
@@ -101,7 +101,7 @@ class Jatekos:
         self.lasgun = math.ceil(self.lasgun * szorzo)
         self.crysknife = math.ceil(self.crysknife * szorzo)
         self.legio = math.ceil(self.legio * szorzo)
-        print("pistol, lashun, knife, legio")
+        print("pistol, lasgun, knife, legio")
         print(self.pistol)
         print(self.lasgun)
         print(self.crysknife)
