@@ -3,7 +3,20 @@ legio_ar = 2
 harvester_kezdeti_ar = 5
 import pandas as pd
 import math
+import sys
 from pathlib import Path
+
+
+# print-ek átirányítása
+class StringStream:
+    def __init__(self):
+        self.data = ""
+
+    def write(self, s):
+        self.data += s
+
+
+sys.stdout = stringStream = StringStream()
 
 # a repo gyokerenek az eleresi utvonala:
 root = Path(__file__).parent.parent
@@ -477,3 +490,8 @@ terkep_mentes.to_csv(veg_terkep_allas, index=False)
 # Lépés fájl elmentése és ürítése
 backup_lepes_fajl.write_bytes(lepes_fajl.read_bytes())
 lepes_fajl.write_bytes(eredeti_lepes_fajl.read_bytes())
+
+# log kiírása és mentése
+log_fajl.write_text(stringStream.data)
+sys.stdout = sys.__stdout__
+print(stringStream.data)
