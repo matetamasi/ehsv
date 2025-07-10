@@ -17,13 +17,13 @@ Fájl elérési útvonalat lehetőleg unix jelöléssel adj meg, és akkor nem k
 
 VSCode-ban: 
 
-- ctrl+shift+e > Clone Repository > https://github.com/domahet/ehsv.git
+- ctrl+shift+e > Clone Repository > https://github.com/mok-it/dune-strat.git
 
 Parancssorból: 
 
 ```console
 $ cd path/to/folder/
-$ git clone https://github.com/domahet/ehsv.git
+$ git clone https://github.com/mok-it/dune-strat.git
 $ cd ehsv/
 ```
 
