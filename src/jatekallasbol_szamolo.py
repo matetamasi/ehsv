@@ -8,22 +8,52 @@ from pathlib import Path
 # a repo gyokerenek az eleresi utvonala:
 root = Path(__file__).parent.parent
 
+allapot = root / "allapot"
+
+
+# Nullával feltöltött stringgé alakítás, hogy az ABC sorrend a növekvő sorrend legyen
+def zstr(x: int, zeroes: int = 2) -> str:
+    return str(x).zfill(zeroes)
+
+
 # körszám bekérés
-kor = int(input("Hányadik kör következik?"))
-kezd_terkep = "kezdo_terkep" + str(kor) + ".csv"
-veg_terkep = "kezdo_terkep" + str(kor + 1) + ".csv"
-kezd_jatekos = "kezdo_jatekos" + str(kor) + ".csv"
-veg_jatekos = "kezdo_jatekos" + str(kor + 1) + ".csv"
+# kor = int(input("Hányadik kör következik?"))
+kor = (
+    max(
+        [int(x.name) for x in allapot.iterdir() if x.is_dir() and x.name.isdigit()]
+        + [-1]  # Ha nincs elem, 0. kör jön
+    )
+    + 1  # A legnagyobb megtalált index utáni kör jön
+)
+elozo_kor_allapot = allapot / zstr(kor - 1)
+kor_allapot = allapot / zstr(kor)
+kor_allapot.mkdir()
+
+# kezd_terkep = "terkep" + zstr(kor) + ".csv"
+# kezd_jatekos = "jatekos" + zstr(kor) + ".csv"
+# veg_terkep = "terkep" + zstr(kor + 1) + ".csv"
+# veg_jatekos = "jatekos" + zstr(kor + 1) + ".csv"
+log_fajl = kor_allapot / ("log" + zstr(kor) + ".txt")
 
 # a 'resources' mappa eleresi utvonala:
 resources = root / "resources"
 terkepadat = resources / "terkep_adatok_2.xlsx"
 jatekallas = resources / "terkep_allas.xlsx"  # játékállást tartalmazó excel
-lepes_fajl = resources / "lepes.xlsx"  # kör lépéseinek az excele
-kezdo_jatekos_allas = resources / kezd_jatekos  # kör kezdőállása
-kezdo_terkep_allas = resources / kezd_terkep  # kör harvesteri kezdetben
-veg_jatekos_allas = resources / veg_jatekos  # kör végállása
-veg_terkep_allas = resources / veg_terkep  # kör harvesterei végben
+eredeti_lepes_fajl = resources / "lepes.xlsx"  # kör lépéseinek az excele
+lepes_fajl = root / "lepes.xlsx"
+backup_lepes_fajl = kor_allapot / "lepes.xlsx"
+
+# kör kezdőállása
+kezdo_jatekos_allas = (
+    elozo_kor_allapot / "jatekos.csv" if kor > 0 else resources / "kezdo_jatekos.csv"
+)
+kezdo_terkep_allas = (
+    elozo_kor_allapot / "terkep.csv" if kor > 0 else resources / "kezdo_terkep.csv"
+)
+
+veg_jatekos_allas = kor_allapot / "jatekos.csv"  # kör végállása
+veg_terkep_allas = kor_allapot / "terkep.csv"  # kör harvesterei végben
+
 
 # térképes excel elérése
 terkep_allas = pd.read_excel(terkepadat, sheet_name="adatok").fillna(0)
@@ -223,7 +253,7 @@ for mezo_nev in mezo_nevek:
     )
     i = i + 1
 # nullelem a mezők között
-mezok["Z0"] = Mezo("Z0", 100, 100, 0, 0, 0, 0, 0)
+mezok["Z0"] = Mezo("Z0", 100, 100, 0, 0, 0, 0, 0)  # TODO: ettől meg kellene szabadulni
 # jatékosokat csinál
 jatekosok = {}
 kezdőmezők = [
@@ -443,3 +473,7 @@ for mezo in mezo_nevek:
 
 jatekosallas_mentes.to_csv(veg_jatekos_allas, index=False)
 terkep_mentes.to_csv(veg_terkep_allas, index=False)
+
+# Lépés fájl elmentése és ürítése
+backup_lepes_fajl.write_bytes(lepes_fajl.read_bytes())
+lepes_fajl.write_bytes(eredeti_lepes_fajl.read_bytes())
