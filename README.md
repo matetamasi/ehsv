@@ -1,4 +1,11 @@
-## Tudnivalók
+# Dűne - stratégiai vetélkedő
+
+A repó tartalma a dűne tematikájú stratégiai játék kiértékelését, játékállás számontartását,
+illetve a fordulók közti térképgenerálást teszi lehetővé. A játék táborokban első sorban egész hetes
+vetélkedőként működhet, mivel a lépések adminisztrációja (átvezetés akcióvezető lapról számítógépre) időigényes.
+A játék előkészítéséről, szabályairól részletesebben a [játék dokumentumok](./jatek_dokumentumok/) mappában olvashatsz.
+
+## Tudnivalók fejlesztéshez
 
 Légyszi a kódban ne legyenek ékezetes változónevek, fájlnevek ne tartalmazzanak ékezetet, space-t, vagy bármit ezek közül: #%&{}\\<>*?/$!'":@+`|=
 
