@@ -30,10 +30,10 @@ font_path = resources / "Times-New-Roman.otf" #rossz font, mert a jó szar
 jatekos_szimbolum = resources / "fremen_ikon.png"
 terkep_fajl = resources / "terkep_adatok_2.xlsx" #teszt
 jatek_allas = resources / allas #itt szerk
-jatek_allas_xlsx =  resources / "terkep_allas.xlsx"
+#jatek_allas_xlsx =  resources / "terkep_allas.xlsx"
 
 #pandas DF-ek, ezekben van az aktuális állás, illtve a térképen a jelölők
-jatekos_szinek = pd.read_excel(jatek_allas_xlsx, sheet_name="játékos színek")
+jatekos_szinek = pd.read_excel(terkep_fajl, sheet_name="játékos színek")
 mezo_birtokos_DF = pd.read_csv(jatek_allas)
 terkep_DF = pd.read_excel(terkep_fajl, sheet_name="adatok").fillna(0)
 
