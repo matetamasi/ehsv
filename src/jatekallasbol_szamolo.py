@@ -85,6 +85,14 @@ szinek = pd.read_excel(terkepadat, sheet_name="játékos színek")
 
 # A mező szomszédja-e B-nek
 def szomszedos(A, B):
+    print("#########")
+    print("Szomszédos")
+    print(A.nev)
+    print(B.nev)
+    print(A.X)
+    print(A.Y)
+    print(B.X)
+    print(B.Y)
     if A.nev == "Z0" or B.nev == "Z0":
         return True
     if abs(A.X - B.X) <= 1 and abs(A.Y - B.Y) <= 1:
@@ -524,6 +532,8 @@ for k in range(1, 13):
             birtok.append(kiindulo_terkep.loc[j, "Mezo_nev"])
             mezok[kiindulo_terkep.loc[j, "Mezo_nev"]].birtokos = str(k)
     jatekosok[str(k)].mezok = birtok
+print("Anyádpicsája")
+print(szomszedos(mezok["J6"],mezok["L6"]))
 
 # játék ciklusa
 for jatekos in jatekosok.keys():
@@ -698,4 +708,4 @@ log_fajl.write_text(stringStream.data)
 sys.stdout = sys.__stdout__
 print(stringStream.data)
 
-terkep_gen(kor, kor_allapot, resources, terkep_mentes)
+#terkep_gen(kor, kor_allapot, resources, terkep_mentes)
