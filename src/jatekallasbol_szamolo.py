@@ -163,13 +163,11 @@ class Mezo:
             jatekosok[self.ralepne[0]].mezore_lepes([self.nev])
         elif (len(self.ralepne) == 1 and self.birtokos) or len(self.ralepne) > 1:
             if self.birtokos:
-                print(f"DEBUG: birtokos rálépne: {self.birtokos}", file=sys.__stdout__)
                 self.ralepne.append(self.birtokos)
             self.harc()
 
     def harc(self):
         haderok = {}
-        print(f"DEBUG: aki rálépne: {self.ralepne}", file=sys.__stdout__)
         for jatekos in self.ralepne:
             print("### Harc ###" + str(self.nev))
             print("jatekos " + jatekosok[jatekos].nev)
@@ -564,7 +562,6 @@ def gameloop(
 ):
     mezo_nevek: List[str] = list(mezok.keys())
     lepes_fajl = root / "lepes.xlsx" if not regen else kor_allapot / "lepes.xlsx"
-    print(f"DEBUG: lepes fajl: {lepes_fajl}")
     for jatekos in jatekosok.keys():
         jatekos_lepes = pd.read_excel(lepes_fajl, sheet_name=jatekos).fillna(0)
         lelepesek = jatekos_lepes["lelép"]
@@ -586,7 +583,6 @@ def gameloop(
             lepesek = ["Z0" if l == 0 else l for l in lepesek]
             print(str(jatekos) + ". jatekos lepesei")
             print(lepesek)
-            print(f"DEBUG: {jatekos} jatekos lepesei: {lepesek}")
 
             # A lépések minden olyan eleme, amelyre a játékos mezőinek
             # van olyan eleme, hogy a két mező szomszédos
@@ -600,15 +596,10 @@ def gameloop(
                 ]
             ]
 
-            print(
-                f"DEBUG: {jatekos} jatekos lepesei szomszedsag szures utan: {lepesek}"
-            )
-
             lelepesek = jatekos_lepes["lelép"]
 
             for lepes in lepesek:
                 if lepes in mezo_nevek:
-                    print(f"DEBUG: appending {jatekos} to ralepne", file=sys.__stdout__)
                     mezok[lepes].ralepne.append(jatekos)
 
             lasgun = 0
@@ -820,6 +811,17 @@ def parse_argv(argv: List[str]):
     csak_terkep = "csak-terkep" in argv
     utolso = "utolso" in argv  # True, ha van utolso argv-ben, False egyébként
     regen = "regen" in argv
+    if regen:
+        sys.stdout = sys.__stdout__
+        igen = input(
+            'Vigyázz, destruktív folyamat!!!\nKészíts másolatot az "allapot" mappáról.\nLemásoltad?\n>> '
+        )
+        if igen.lower() != "igen":
+            print(
+                'A program leáll. A folytatáshoz készíts egy másolatot, majd írd be, hogy "igen".',
+                file=sys.__stdout__,
+            )
+            exit()
     if (kor != None and regen) or ((csak_lepes or csak_terkep) and regen):
         print(
             'Újragenerálás és más argumentum egyszerre nem lehetséges (leszámítva az "utolso"-t)!'
