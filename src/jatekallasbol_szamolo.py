@@ -430,6 +430,8 @@ def init(args_kor: int | None, csak_terkep: bool = False) -> Tuple[
     Dict[str, Mezo],  # mezok
     Dict[str, Jatekos],  # jatekosok
 ]:
+    print(f"DEBUG INIT: csak_terkep={csak_terkep}")
+    print(f"DEBUG INIT: args_kor={args_kor}")
     sys.stdout = stringStream = StringStream()
 
     # a repo gyokerenek az eleresi utvonala:
@@ -447,10 +449,15 @@ def init(args_kor: int | None, csak_terkep: bool = False) -> Tuple[
                 ]
                 + [-1]  # Ha nincs elem, 0. kör jön
             )
+            + (
+                0 if csak_terkep else 1
+            )  # csak térkép esetén a legnagyobb mappával dolgozunk, nem a kövivel
         )
         if args_kor == None
         else args_kor
     )
+    print(f"DEBUG INIT: kor={kor}")
+
     elozo_kor_allapot = allapot / zstr(kor - 1)
     kor_allapot = allapot / zstr(kor)
 
@@ -781,35 +788,53 @@ lehetséges argumentumok:
 
 
 def parse_argv(argv: List[str]):
+    valid_args = ["csak-lepes", "csak-terkep", "utolso", "regen"]
     allapot = Path(__file__).parent.parent / "allapot"
     kor: int | None = None
-    if len(argv) > 1 and argv[1].isdigit():
-        kor = int(argv[1])
-        if kor < 0:
-            print("Nullánál kisebb körszám nem lehetséges!")
-            print(hasznalat)
-        maxkor = (
-            max(
-                [
-                    int(x.name)
-                    for x in allapot.iterdir()
-                    if x.is_dir() and x.name.isdigit()
-                ]
-                + [-1]
-            )
-            + 1
-        )
+    for arg_index in range(1, len(argv)):
+        if argv[arg_index].isdigit():
+            if kor != None:  # Már van megadva körszám
+                print(
+                    f"Hibás argumentum: {argv[arg_index]}!\n"
+                    + f"Már a {kor} körszámot is megadtad."
+                    + " Csak egy kör sorszámát add meg!"
+                )
+                print(hasznalat)
+                exit()
+            else:
+                kor = int(argv[arg_index])
+                if kor < 0:
+                    print("Nullánál kisebb körszám nem lehetséges!")
+                    print(hasznalat)
+                    exit()
+                maxkor = (
+                    max(
+                        [
+                            int(x.name)
+                            for x in allapot.iterdir()
+                            if x.is_dir() and x.name.isdigit()
+                        ]
+                        + [-1]
+                    )
+                    + 1
+                )
 
-        if kor > maxkor:
-            print(
-                f"A(z) {kor}. kör nem játszható le, mert a(z) {kor-1}. adatai nem találhatók!"
-            )
+                if kor > maxkor:
+                    print(
+                        f"A(z) {kor}. kör nem játszható le, mert a(z) {kor-1}. adatai nem találhatók!"
+                    )
+                    print(hasznalat)
+                    exit()
+        elif argv[arg_index] in valid_args:
+            valid_args.remove(argv[arg_index])
+        else:
+            print(f"Hibás argumentum: {argv[arg_index]}!")
             print(hasznalat)
             exit()
 
     csak_lepes = "csak-lepes" in argv
     csak_terkep = "csak-terkep" in argv
-    utolso = "utolso" in argv  # True, ha van utolso argv-ben, False egyébként
+    utolso = "utolso" in argv
     regen = "regen" in argv
     if regen:
         sys.stdout = sys.__stdout__
@@ -872,6 +897,7 @@ else:
     (root, res, kor_all, stringStream, kor, mezok, jatekosok) = init(
         args_kor, csak_terkep
     )
+    print(f"kor: {kor}", file=sys.__stdout__)
     if not csak_terkep:
         (terkep_m, jatekos_m) = gameloop(root, res, kor_all, mezok, jatekosok, utolso)
         mentes(terkep_m, jatekos_m, kor_all)
