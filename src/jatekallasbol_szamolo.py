@@ -39,14 +39,6 @@ def valid_harvester(harvester_koord: str, jatekos: str) -> bool:
 
 # A mező szomszédja-e B-nek
 def szomszedos(A, B):
-    print("#########")
-    print("Szomszédos")
-    print(A.nev)
-    print(B.nev)
-    print(A.X)
-    print(A.Y)
-    print(B.X)
-    print(B.Y)
     if A.nev == "Z0" or B.nev == "Z0":
         return True
     if abs(A.X - B.X) <= 1 and abs(A.Y - B.Y) <= 1:
@@ -141,7 +133,7 @@ class Jatekos:
 
 
 class Mezo:
-    def __init__(self, nev, X, Y, viz, spice, pistol, lasgun, crysknife):
+    def __init__(self, nev, X, Y, viz, spice, pistol, lasgun, crysknife, tipus):
         self.nev = nev
         self.X = X
         self.Y = Y
@@ -150,6 +142,7 @@ class Mezo:
         self.pistol = pistol
         self.lasgun = lasgun
         self.crysknife = crysknife
+        self.tipus = tipus
         self.harvester = 0
         self.birtokos: str = ""
         self.ralepne: List[str] = []
@@ -497,11 +490,12 @@ def init(args_kor: int | None, csak_terkep: bool = False) -> Tuple[
             int(térkép.loc[i, "pisztoly"]),
             int(térkép.loc[i, "lasgun"]),
             int(térkép.loc[i, "crysknife"]),
+            str(térkép.loc[i, "mező"])
         )
         i = i + 1
     # nullelem a mezők között
     mezok["Z0"] = Mezo(
-        "Z0", 100, 100, 0, 0, 0, 0, 0
+        "Z0", 100, 100, 0, 0, 0, 0, 0, "Svt"
     )  # TODO: ettől meg kellene szabadulni
     # jatékosokat csinál
     jatekosok: Dict[str, Jatekos] = {}
@@ -602,6 +596,15 @@ def gameloop(
                     for j_mezo in jatekosok[jatekos].mezok
                 ]
             ]
+            
+            #ha a mező "külső" típussal rendelkezik akkor a lépések közül eltávolítjuk
+            kulso_lepes = [] 
+            for mezo in lepesek: 
+                if mezok[mezo].tipus == "külső":
+                    print(str(jatekos) + ". térképen kívül próbált lépni a: " + str(mezo) + " mezőre")
+                    kulso_lepes.append(mezo)
+            for mezo in kulso_lepes:
+                lepesek.remove(mezo)
 
             lelepesek = jatekos_lepes["lelép"]
 
